@@ -59,17 +59,19 @@ starting from an open reimplementation of the engine.
   ScriptFile (`.gscbin`) extraction.
 - Recovered the **real pre-2026 dedicated server** (`iw5mp_server.exe`, 4,077,480 B, PE32 i386)
   whose SHA-256 matches open-iw5's expected base exactly, and forked/rebuilt open-iw5:
-  **build succeeds and the SP client boots** (loader applies `iw5sp.exe.diff` to the dedi base
-  in memory, engine entry reaches window + filesystem init, writes `console_sp.log`). It stops
-  at a `setsaveddvar` script runtime error raised by the engine's own builtin table, which looks
-  like a game-data/startup issue rather than a loader bug. Details and build fixes are in
-  `NOTES.md`; a boot screenshot was captured.
+  **build succeeds and the SP client plays a campaign mission.** The loader applies
+  `iw5sp.exe.diff` to the dedi base in memory and the engine entry runs to window + filesystem
+  init. Launched straight into a level (`open-iw5.exe -singleplayer +map sp_intro`) the client
+  loads and plays the mission - live HUD and dialogue subtitles, read back with OCR. A single
+  `setsaveddvar` script runtime error is logged during startup and is **non-fatal**; it does not
+  stop the game. Details and build fixes are in `NOTES.md`.
 
 ## QA
 
 - Campaign co-op: **none** - no co-op test has run.
-- open-iw5 SP boot was observed manually (window title, ~1.6 GB RSS, `console_sp.log`,
-  screenshot). No automated test yet.
+- open-iw5 SP client was observed running a real campaign mission (window title, ~1.8 GB RSS,
+  live subtitles read back with Windows OCR, screenshots captured). Manual observation, not an
+  automated test yet.
 
 ## How to play
 
@@ -83,13 +85,19 @@ starting from an open reimplementation of the engine.
   SP engine is unproven.
 - open-iw5's upstream repo is deleted (GitHub 404), all 11 submodules were empty in our copy,
   and it needs a deleted `xlabs` branch of gsc-tool; the fork is currently reconstructed by hand.
-- The SP boot stops on a `setsaveddvar` script runtime error before loading a mission.
+- A `setsaveddvar` script runtime error is logged once during startup. It is **non-fatal** (the
+  mission still runs); the caller (which script sets which dvar, before the dvars exist) is not
+  yet identified.
+- A bare `-singleplayer` launch (no level requested) does not reliably reach the in-game
+  frontend; a level must be named explicitly to get into gameplay.
 - AlterWare notes an Oct-2026 Steam update breaking compatibility; a community downgrade tool
   exists. Our 32-bit copy predates that.
 
 ## Next steps
 
-- Get past the `setsaveddvar` error and load one campaign mission on the open-iw5 SP client.
+- Reach a mission through the in-game frontend (a bare `-singleplayer` launch currently does not
+  reliably show the menu), and identify the `setsaveddvar` caller so the startup error can be
+  explained or silenced.
 - Build the host-authoritative replication layer (players, entities, story flags) - Phase 4+.
 - Use the extracted ScriptFile `.gscbin` plus the campaign GSC dumps to map which scripts set
   which flags.

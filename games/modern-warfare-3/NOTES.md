@@ -707,6 +707,35 @@ Owner said go. Steps and results:
 Next actions:
 
 1. Owner reviews PR #40; un-draft when happy.
-2. Get past the `setsaveddvar` SP boot error; load one campaign mission on the open-iw5 client.
+2. Load one campaign mission on the open-iw5 client. **DONE** - see "Phase 3 milestone 2" below.
 3. Phase 4: host-authoritative replication layer (players, entities, story flags).
 4. Optional follow-up PR: engine-family row for the CoD (IW) engine in `playbook/engine-families.md`.
+
+## Phase 3 milestone 2 - SP client runs a campaign mission (2026-10-19)
+
+Correction to the earlier "boot stops" note above: the `setsaveddvar` script runtime error is
+**non-fatal**. It is logged once during startup and the game carries on; the earlier run simply
+never got into a level.
+
+What was actually missing was the level argument. Observed on the isolated test copy:
+
+- `open-iw5.exe -singleplayer` (no level): does not come up to a usable frontend. Window title
+  becomes the game name, RSS grows to ~0.5 GB then ~0.9-1.1 GB, the window stops responding, and
+  the 219-byte `userraw/console_sp.log` holding the `setsaveddvar` error is all that is written.
+- `open-iw5.exe -singleplayer +map sp_intro`: process alive + responding, ~1.79 GB RSS, the same
+  startup error is logged, and the mission loads and plays.
+
+Proof it is real in-engine campaign gameplay and not a menu or a dialog: OCR of the captured frame
+(`Windows.Media.Ocr`, ru-RU - the test copy is the Russian localization) reads live dialogue
+subtitles:
+- `Трак: Внимание! Вертолет на подходе!`
+- `Гринч: Мне это нравится. Сэндман: Наверх по лестнице! За мной!`
+
+Grinch and Sandman are Modern Warfare 3 campaign characters. Three frames sampled 12 s apart
+differ, so the game is running, not frozen.
+
+Evidence (local captures, not committed to this PR): `mw3-research/docs/evidence/`
+`sp_intro_subtitle_1.png`, `sp_intro_subtitle_2.png`, `sp_boot_intro_hud.png`,
+`sp_intro_gameplay.txt`.
+
+Next: Phase 4 - host-authoritative replication layer (players, entities, story flags).
