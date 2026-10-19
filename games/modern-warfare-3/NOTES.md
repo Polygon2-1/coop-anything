@@ -680,3 +680,33 @@ not by open-iw5's GSC layer - a game-data/startup issue, not a loader failure.
 
 Conclusion: toolchain validated end-to-end (build -> HDiffPatch -> in-memory PE load -> engine
 entry -> window + FS init). The co-op replication layer remains Phase 4+.
+
+## Session 2026-10-19 (cont.) — GitHub publish (claim issue + draft PR)
+
+Owner said go. Steps and results:
+
+- `gh auth login --web` done as **Polygon2-1** (device flow, scopes repo/read:org/gist).
+- **Claim issue opened:** cranebeaker/coop-anything **#39** "Claim: Call of Duty: Modern Warfare 3
+  (2011) - campaign co-op". No `in-progress` label exists on the repo (the issue template names one),
+  so it was opened without a label (the MW2 claim issue #31 is also unlabelled).
+- **Fork:** Polygon2-1/coop-anything -> `game/modern-warfare-3`. Base is upstream `main` bffd56f
+  (0 behind). Note: the local zip snapshot we had was 13 entries behind main; always base on a fresh
+  clone.
+- **Installed PyYAML** (owner-approved) - `tools/build_directory.py` needs it.
+- **PR:** cranebeaker/coop-anything **#40**, opened **draft**, "Modern Warfare 3 (2011): campaign
+  co-op write-up + directory entries". CI `check` passes; mergeable, no conflicts.
+  Contents:
+  - `games/modern-warfare-3/README.md` (write-up from `templates/game.md`).
+  - `games/modern-warfare-3/NOTES.md` (this file; local paths sanitized to `<game dir>` / `<test copy>`
+    / `<steam content>` / `<build junction>` for the PR).
+  - `data/directory.yaml`: 2 new entries - `AlterWare IW5-Mod` (kind mod, Spec Ops/Survival, closed
+    source) and a `(none found)` **gap** for campaign co-op with the `searched:` list.
+  - regenerated `DIRECTORY.md` (223/32 -> 224 projects/33 gaps).
+- Owner review of the draft PR is the next human step; the "owner reviewed" box is left unticked.
+
+Next actions:
+
+1. Owner reviews PR #40; un-draft when happy.
+2. Get past the `setsaveddvar` SP boot error; load one campaign mission on the open-iw5 client.
+3. Phase 4: host-authoritative replication layer (players, entities, story flags).
+4. Optional follow-up PR: engine-family row for the CoD (IW) engine in `playbook/engine-families.md`.
